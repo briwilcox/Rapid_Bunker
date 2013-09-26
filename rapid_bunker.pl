@@ -42,7 +42,7 @@ use Term::ANSIColor;
 # Avoids ugly if statements and allows easy additions to the code.
 my %functionmap = 
 (	
-	connections =>	\&connections,
+	connections 	=>	\&connections,
 	fw_rules 	=>	\&fw_rules,
 	proc 		=>	\&proc,
 	list_open 	=>	\&list_open,
@@ -53,6 +53,7 @@ my %functionmap =
 	help 		=>	\&help,
 	exit 		=>	\&exit_now,
 	fw_custom	=>	\&fw_custom,
+	all_users	=>	\&all_users,
 );
 
 # Custom Firewall function. Configures IP tables to user specifications.
@@ -221,9 +222,10 @@ sub help
 	&colored_say("bold green",   "\nfw_bunker : implements restrictive firewall rules,");
 	&colored_say("bold green",   "    closing all ports, and only allowing connections that");
 	&colored_say("bold green",   "    the host initiates. Side effect: Will block ICMP (Ping).");
-	&colored_say("bold green",   "\nfw_custom : allows the user to open specific ports and set firewall rules.\n");
+	&colored_say("bold green",   "\nfw_custom : allows the user to open specific ports and set firewall rules.");
 	&colored_say("bold green",   "\nlast : list the logins to the machine");
 	&colored_say("bold green",   "\nusers : list currently logged in users");
+	&colored_say("bold green",   "\nall_users : list all users on the machine");
 	&colored_say("bold green",   "\nproc : list processes for all users");
 	&colored_say("bold green",   "\nlist_open : (Warning large amounts of output) Lists all open files");
 	&colored_say("bold green",   "\nexit : terminates the program.\n");
@@ -236,6 +238,15 @@ sub colored_say($$)
 	print color $color;
 	print $out . "\n";
 	print color 'reset'; 
+}
+
+#Prints all users in /etc/passwd
+sub all_users
+{
+	&colored_say("bold green",   "\nListing all users on the machine:");	
+	#Command sourced from stackoverflow.com/q/12539272
+	system("grep -o '^[^:]*' /etc/passwd");
+	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
 #Main function body, loops until exit command is given. Takes user input and sends it to the function hash, as well as checks for errors.
