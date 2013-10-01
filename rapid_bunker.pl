@@ -6,7 +6,7 @@ use 5.010;
 use Term::ANSIColor;
 
 #
-# Rapid Bunker Beta : Version 0.51
+# Rapid Bunker Beta : Version 0.61
 #
 
 #
