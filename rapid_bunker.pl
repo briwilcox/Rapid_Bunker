@@ -54,6 +54,7 @@ my %functionmap =
 	exit 		=>	\&exit_now,
 	fw_custom	=>	\&fw_custom,
 	all_users	=>	\&all_users,
+	kill_proc	=>	\&kill_proc,
 );
 
 # Custom Firewall function. Configures IP tables to user specifications.
@@ -61,6 +62,7 @@ sub fw_custom
 {
 	system("sudo iptables -F");
 	system("sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT");
+	&enable_ping();
 	my $in = '';
 	&colored_say
 	("bold green",  "Type a tcp port you want open, then click enter. Once you have entered as many tcp ports as you want, enter 0 to continue.");
@@ -136,6 +138,25 @@ sub iptables_udp
 	}
 }
 
+#Enable Ping
+sub enable_ping
+{
+	&colored_say("bold green",  "Would you like to enable ping responses from this machine? Type y for yes, n for no.");
+	chomp(my $yn = <STDIN>);
+	if(($yn eq 'y') || ($yn eq 'Y'))
+	{
+		&colored_say("bold green",  "The output of a command listing your interfaces and IPs is listed below:");
+		system("ifconfig -a");
+		&colored_say("bold green",  "Please carefully type the IP address of the interface you would like to allow incoming and outgoing ping from.");
+
+		chomp(my $ip = <STDIN>);
+		system("sudo iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -d $ip -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT");
+		system("sudo iptables -A OUTPUT -p icmp --icmp-type 0 -s $ip -d 0/0 -m state --state ESTABLISHED,RELATED -j ACCEPT");
+		system("sudo iptables -A OUTPUT -p icmp --icmp-type 8 -s $ip -d 0/0 -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT");
+		system("sudo iptables -A INPUT -p icmp --icmp-type 0 -s 0/0 -d $ip -m state --state ESTABLISHED,RELATED -j ACCEPT");
+	}
+}
+
 #Exits the program with exit code 0
 sub exit_now
 {
@@ -182,6 +203,8 @@ sub fw_bunker
 	&colored_say("bold green",   "Implementing restrictive firewall rules.");
 	system("sudo iptables -F");
 	system("sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT");
+	#Give user the option of enabling ping even with auto lock down.
+	&enable_ping(); 
 	system("sudo iptables -A INPUT -j DROP");
 	system("sudo iptables --list");
 	&colored_say("bold green",   "\nYou may enter an additional command");
@@ -221,12 +244,13 @@ sub help
 	&colored_say("bold green",   "\nfw_rules : lists firewall rules");
 	&colored_say("bold green",   "\nfw_bunker : implements restrictive firewall rules,");
 	&colored_say("bold green",   "    closing all ports, and only allowing connections that");
-	&colored_say("bold green",   "    the host initiates. Side effect: Will block ICMP (Ping).");
+	&colored_say("bold green",   "    the host initiates.");
 	&colored_say("bold green",   "\nfw_custom : allows the user to open specific ports and set firewall rules.");
 	&colored_say("bold green",   "\nlast : list the logins to the machine");
 	&colored_say("bold green",   "\nusers : list currently logged in users");
 	&colored_say("bold green",   "\nall_users : list all users on the machine");
 	&colored_say("bold green",   "\nproc : list processes for all users");
+	&colored_say("bold green",   "\nkill_proc : kill a process by either name or process id (PID)");	
 	&colored_say("bold green",   "\nlist_open : (Warning large amounts of output) Lists all open files");
 	&colored_say("bold green",   "\nexit : terminates the program.\n");
 }
@@ -238,6 +262,48 @@ sub colored_say($$)
 	print color $color;
 	print $out . "\n";
 	print color 'reset'; 
+}
+
+sub kill_proc
+{
+	&colored_say("bold green",   "Enter (without quotes) '1' to kill a process by name, or enter '2' to kill a process by process id (PID).");
+	chomp(my $choice = <STDIN>);
+
+	if($choice eq 1)
+	{
+		&killall();
+	} 
+
+	elsif($choice eq 2)
+	{
+		&killpid();
+	}
+
+	else
+	{
+		&colored_say("bold red",   "It appears you have entered invalid input, aborting kill_proc!");	
+	}
+	
+}
+
+sub killall
+{
+	&colored_say("bold green",   "Suggested usage: run proc first to list process names");	
+
+	&colored_say("bold green",   "\nType process name to kill all instances of (example: firefox):");	
+	chomp(my $proc = <STDIN>);
+	system("sudo killall $proc");
+	&colored_say("bold green",   "\nYou may enter an additional command");
+}
+
+sub killpid
+{
+	&colored_say("bold green",   "Suggested usage: run proc first to list process names");	
+
+	&colored_say("bold green",   "\nType process ID (PID) to run 'kill' against (example: 1234):");	
+	chomp(my $pid = <STDIN>);
+	system("sudo kill $pid");
+	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
 #Prints all users in /etc/passwd
