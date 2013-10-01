@@ -5,7 +5,13 @@ use warnings;
 use 5.010;
 use Term::ANSIColor;
 
-# Rapid Bunker Beta : Version 0.5
+#
+# Rapid Bunker Beta : Version 0.51
+#
+
+#
+# If you find this software useful please let me know: brianmwilcox.com/contact-me/
+#
 
 # Copyright (c) 2013, Brian M Wilcox, www.brianmwilcox.com
 # All rights reserved.
@@ -264,6 +270,7 @@ sub colored_say($$)
 	print color 'reset'; 
 }
 
+#Allows a user to kill a process by name or PID by calling a sub functions killall or killpid
 sub kill_proc
 {
 	&colored_say("bold green",   "Enter (without quotes) '1' to kill a process by name, or enter '2' to kill a process by process id (PID).");
@@ -286,6 +293,7 @@ sub kill_proc
 	
 }
 
+#Allows a user to kill a process using the killall command
 sub killall
 {
 	&colored_say("bold green",   "Suggested usage: run proc first to list process names");	
@@ -296,6 +304,7 @@ sub killall
 	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
+#Allows a user to kill a process by PID 
 sub killpid
 {
 	&colored_say("bold green",   "Suggested usage: run proc first to list process names");	
