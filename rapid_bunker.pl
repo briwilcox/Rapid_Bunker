@@ -6,7 +6,7 @@ use 5.010;
 use Term::ANSIColor;
 
 #
-# Rapid Bunker Beta : Version 0.61
+# Rapid Bunker Beta : Version 0.62
 #
 
 #
@@ -61,6 +61,7 @@ my %functionmap =
 	fw_custom	=>	\&fw_custom,
 	all_users	=>	\&all_users,
 	kill_proc	=>	\&kill_proc,
+	failed_logins	=>	\&failed,
 );
 
 # Custom Firewall function. Configures IP tables to user specifications.
@@ -255,6 +256,7 @@ sub help
 	&colored_say("bold green",   "\nlast : list the logins to the machine");
 	&colored_say("bold green",   "\nusers : list currently logged in users");
 	&colored_say("bold green",   "\nall_users : list all users on the machine");
+        &colored_say("bold green",   "\nfailed_logins : list all failed login attempts to the machine");
 	&colored_say("bold green",   "\nproc : list processes for all users");
 	&colored_say("bold green",   "\nkill_proc : kill a process by either name or process id (PID)");	
 	&colored_say("bold green",   "\nlist_open : (Warning large amounts of output) Lists all open files");
@@ -321,6 +323,13 @@ sub all_users
 	&colored_say("bold green",   "\nListing all users on the machine:");	
 	#Command sourced from stackoverflow.com/q/12539272
 	system("grep -o '^[^:]*' /etc/passwd");
+	&colored_say("bold green",   "\nYou may enter an additional command");
+}
+
+sub failed
+{
+	&colored_say("bold green",   "\nListing all failed login attempts on the machine:");
+	system("sudo faillog --all");
 	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
