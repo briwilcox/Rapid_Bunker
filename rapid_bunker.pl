@@ -6,7 +6,7 @@ use 5.010;
 use Term::ANSIColor;
 
 #
-# Rapid Bunker Beta : Version 0.62
+# Rapid Bunker Beta : Version 0.63
 #
 
 #
@@ -256,7 +256,7 @@ sub help
 	&colored_say("bold green",   "\nlast : list the logins to the machine");
 	&colored_say("bold green",   "\nusers : list currently logged in users");
 	&colored_say("bold green",   "\nall_users : list all users on the machine");
-        &colored_say("bold green",   "\nfailed_logins : list all failed login attempts to the machine");
+	&colored_say("bold green",   "\nfailed_logins : list all failed login attempts to the machine");
 	&colored_say("bold green",   "\nproc : list processes for all users");
 	&colored_say("bold green",   "\nkill_proc : kill a process by either name or process id (PID)");	
 	&colored_say("bold green",   "\nlist_open : (Warning large amounts of output) Lists all open files");
@@ -317,6 +317,55 @@ sub killpid
 	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
+#Debian / Ubuntu / Variant bulk package installation
+sub deb_install
+{
+	system("sudo apt-get update");
+	my $packages;
+	for $packages(@_)
+	{
+		system("sudo apt-get install $packages");
+	}
+}
+
+# CentOS / Fedora / Variant bulk package install
+sub yum_install
+{
+	my $packages;
+	for $packages(@_)
+	{
+		system("sudo yum install $packages");
+	}
+} 
+
+#Install packages on a system running pacman (like archlinux)
+sub pac_install
+{
+	my $packages;
+	for $packages(@_)
+	{
+		system("sudo pacman -S $packages");
+	}
+}
+
+#Update all packages on a system running apt-get
+sub deb_update
+{
+	system("sudo apt-get update && sudo apt-get upgrade");
+}
+
+#Update all packages on a system running yum package manager
+sub yum_update
+{
+	system("sudo yum update");
+}
+
+#Update all packages on a system running pacman package manager
+sub pack_update
+{
+	system("sudo pacman -Syu");
+}
+
 #Prints all users in /etc/passwd
 sub all_users
 {
@@ -326,6 +375,7 @@ sub all_users
 	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
+#Lists failed login attempts
 sub failed
 {
 	&colored_say("bold green",   "\nListing all failed login attempts on the machine:");
