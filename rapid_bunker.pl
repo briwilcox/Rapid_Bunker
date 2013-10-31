@@ -62,7 +62,11 @@ my %functionmap =
 	all_users	=>	\&all_users,
 	kill_proc	=>	\&kill_proc,
 	failed_logins	=>	\&failed,
+	install_sec	=>	\&sec_list_install,
 );
+
+#These common security packages appear to be in both debian and cent os repositories as of Oct 31 2013
+my @sec_packages = ('fail2ban', 'chkrootkit', 'logwatch', 'nmap');
 
 # Custom Firewall function. Configures IP tables to user specifications.
 sub fw_custom
@@ -259,6 +263,7 @@ sub help
 	&colored_say("bold green",   "\nfailed_logins : list all failed login attempts to the machine");
 	&colored_say("bold green",   "\nproc : list processes for all users");
 	&colored_say("bold green",   "\nkill_proc : kill a process by either name or process id (PID)");	
+	&colored_say("bold green",   "\ninstall_sec : install common security applications ('fail2ban', 'chkrootkit', 'logwatch', 'nmap').");
 	&colored_say("bold green",   "\nlist_open : (Warning large amounts of output) Lists all open files");
 	&colored_say("bold green",   "\nexit : terminates the program.\n");
 }
@@ -317,6 +322,29 @@ sub killpid
 	&colored_say("bold green",   "\nYou may enter an additional command");
 }
 
+#Install security applications
+sub sec_list_install
+{
+	my $apt = '/usr/bin/apt-get';
+	my $yum = '/usr/bin/yum';
+	my $pac = '/usr/bin/pacman';
+	if(-e $apt)
+	{
+		deb_install(@sec_packages);	
+	}
+	#Not tested
+	elsif(-e $yum)
+	{
+		yum_install(@sec_packages);
+	}
+	#Not tested
+	elsif(-e $pac)
+	{
+		pac_install(@sec_packages);
+	}
+} 
+
+
 #Debian / Ubuntu / Variant bulk package installation
 sub deb_install
 {
@@ -328,7 +356,7 @@ sub deb_install
 	}
 }
 
-# CentOS / Fedora / Variant bulk package install
+#CentOS / Fedora / Variant bulk package install
 sub yum_install
 {
 	my $packages;
