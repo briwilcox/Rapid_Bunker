@@ -6,7 +6,7 @@ use 5.010;
 use Term::ANSIColor;
 
 #
-# Rapid Bunker Beta : Version 0.63
+# Rapid Bunker Beta : Version 0.70
 #
 
 #
@@ -63,10 +63,73 @@ my %functionmap =
 	kill_proc	=>	\&kill_proc,
 	failed_logins	=>	\&failed,
 	install_sec	=>	\&sec_list_install,
+	scan		=>	\&scanner,
 );
+
 
 #These common security packages appear to be in both debian and cent os repositories as of Oct 31 2013
 my @sec_packages = ('fail2ban', 'chkrootkit', 'logwatch', 'nmap');
+
+sub scanner
+{
+	#Is nmap installed?
+	my $scanner = "nmap";
+	my $scanner_check = 'which $scanner';
+	my $in = '';	
+	if((length($scanner_check)) < 1)
+	{
+		
+		&colored_say("bold red", "It appears nmap is not installed, please install it manually or with the install_sec command.");
+		
+	} else {
+                &colored_say("bold green", "Would you like to exit Rapid Bunker and manually run nmap? (y for yes, n for no)");
+	        chomp($in = <stdin>);
+		if($in eq "y")
+		{
+			exec("sudo nmap");
+		}
+		$in = '';
+
+		&colored_say("bold green", "Enter ip or range you'd like to scan:");
+		my $ip = '';
+		chomp($ip = <stdin>);
+
+		&colored_say("bold green", "Would you like to spoof your IP address? (type y for yes, n for no) :");
+                chomp($in = <stdin>);
+		if(lc($in) eq "y")
+		{
+                        &colored_say("bold green", "Enter IP to spoof to :");
+			my $spoofed_ip = '';
+                        chomp($spoofed_ip = <stdin>);
+			&colored_say("bold green", "Below is the output of ifconfig, use it to answer the next prompt.");
+			system("ifconfig");
+
+			&colored_say("bold green", "Because you are spoofing you need to tell Nmap an interface to scan on (such as eth0, eth1, wlan0)\nWhat interface would you like to scan from? :");
+			my $interface = '';
+			chomp($interface = <stdin>);
+
+                        &colored_say("bold green", "Would you like to do a deep (all ports) or fast scan? (type deep for deep, fast for fast) :");
+                        chomp($in = <stdin>);
+                        if((lc($in)) eq "deep")
+                        {
+                                system("sudo nmap $ip -p1-65535 -O -sV -S $spoofed_ip -e $interface -Pn");
+                        } else {
+                                system("sudo nmap $ip -F -O -sV -S $spoofed_ip -e $interface -Pn")
+                        }
+		
+		} else {
+			&colored_say("bold green", "Would you like to do a deep (all ports) or fast scan? (type deep for deep, fast for fast) :");
+			chomp($in = <stdin>);
+			if((lc($in)) eq "deep")
+			{
+				system("sudo nmap $ip -p1-65535 -O -sV");
+			} else {
+				system("sudo nmap $ip -F -O -sV")
+			}
+		}
+	}
+        &colored_say("bold green",   "\nYou may enter an additional command");
+}
 
 # Custom Firewall function. Configures IP tables to user specifications.
 sub fw_custom
@@ -252,6 +315,7 @@ sub help
 	&colored_say("bold green",   "\nhelp : relists these commands");
 	&colored_say("bold green",   "\nconnections : lists open or listening connections");
 	&colored_say("bold green",   "\nsnitch : lists all processes connecting to the network");
+        &colored_say("bold green",   "\nscan : user friendly interface to ipv4 port scanning or drop into nmap for advanced port scanning");
 	&colored_say("bold green",   "\nfw_rules : lists firewall rules");
 	&colored_say("bold green",   "\nfw_bunker : implements restrictive firewall rules,");
 	&colored_say("bold green",   "    closing all ports, and only allowing connections that");
