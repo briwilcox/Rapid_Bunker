@@ -137,6 +137,9 @@ sub fw_custom
 	system("sudo iptables -F");
 	system("sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT");
 	&enable_ping();
+	#Enable local host
+	system("sudo iptables -A INPUT -i lo -j ACCEPT");
+	system("sudo iptables -A OUTPUT -o lo -j ACCEPT");
 	my $in = '';
 	&colored_say
 	("bold green",  "Type a tcp port you want open, then click enter. Once you have entered as many tcp ports as you want, enter 0 to continue.");
@@ -276,6 +279,8 @@ sub fw_bunker
 {
 	&colored_say("bold green",   "Implementing restrictive firewall rules.");
 	system("sudo iptables -F");
+        system("sudo iptables -A INPUT -i lo -j ACCEPT");
+        system("sudo iptables -A OUTPUT -o lo -j ACCEPT");
 	system("sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT");
 	#Give user the option of enabling ping even with auto lock down.
 	&enable_ping(); 
