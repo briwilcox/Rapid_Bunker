@@ -6,27 +6,45 @@ A Perl utility that allows for the rapid deployment of iptables, and provides a 
 # Commands / Usage
 
 General:
+
 	help : relists these commands
+
 	exit : terminates the program
 
 Network Related:
+
 	connections : lists open or listening connections
+
 	snitch : lists all processes connecting to the network
+
 	scan : user friendly interface to ipv4 port scanning (common or all ports, ability to spoof IP address easily) or drop into nmap for more control
+
 	fw_rules : lists firewall rules
+
 	fw_bunker : implements restrictive firewall rules, closing all ports, and only allowing connections that the host initiates. User may allow or deny ICMP (ping).
+
 	fw_custom : allows the user to open specific ports and set firewall rules. User may allow or deny ICMP (ping).
 
 User Related:
+
 	last : list the logins to the machine
+
 	users : list currently logged in users
+
 	all_users : list all users on the machine
+
 	failed_logins : list all failed login attempts on the machine, and to which accounts
+
 	Process Related:
+
 	proc : list processes for all users
+
 	kill_proc : kills a proccess by name or by PID
+
 	list_open : (Warning large amounts of output) Lists all open files
+
 Misc:
+
 	install_sec : install common security applications (‘fail2ban’, ‘chkrootkit’, ‘logwatch’, ‘nmap’).
 
 # Why write this utility?
